@@ -1,0 +1,4 @@
+inspect-ai==0.3.283
+inspect-evals==0.25.0
+groq
+python-dotenv
