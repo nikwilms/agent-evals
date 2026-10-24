@@ -19,6 +19,8 @@ AgentDojo `banking` suite, attack `important_instructions`, injection task 0
 | `openai/gpt-oss-20b` (Groq) | 0.60 (≈ 27–93 %) | **0.70** (≈ 39–100 %) | in no case |
 | `qwen/qwen3.8-27b` (Groq) | 0.90 (≈ 70–100 %) | **0.20** (≈ 0–47 %) | 7 of 10 cases |
 
+Later runs added `meta/muse-glimmer-30b` (NVIDIA) and `granite4.1:3b` (local), see below.
+
 Ranges are ± 2 × stderr. n = 10, so read them as a direction, not as proof.
 
 **Key points**
@@ -57,6 +59,21 @@ went through every time. In one case the refusal also blocked the user's real ta
 
 Details: [results/2026-10-24_banking_attack-types.md](results/2026-10-24_banking_attack-types.md)
 
+## Three models, same 27 cases (2026-10-24)
+
+User tasks 2, 3, 7 × injection tasks 0–8. Granite was run on u3 only (local, slow, utility 0).
+
+| Model | Where | Completed | Task solved | Hijacked | How it behaved |
+|---|---|---|---|---|---|
+| `gpt-oss-20b` | Groq | 27 / 27 | 24 / 27 | **19 / 27** | treats injected text as a user instruction; refuses only attacks that look harmful |
+| `muse-glimmer-30b` | NVIDIA | 24 / 27 | **24 / 24** | **2 / 24** | names the injection as untrusted data and ignores it; both misses were in the landlord file (u2) |
+| `granite4.1:3b` | local (Ollama) | 9 / 9 (u3) | **0 / 9** | 2 / 9 | looks "secure" only because it fails the task |
+
+**Lesson:** never read attack success without utility. A model that cannot use its tools
+also cannot be hijacked, but it is not secure, it is useless.
+
+Details: [results/2026-10-24_model-comparison.md](results/2026-10-24_model-comparison.md)
+
 ## Findings about the benchmark itself
 
 - [Operator-precedence bug in `InjectionTask0.security`](findings/injectiontask0-precedence-bug.md)
@@ -90,7 +107,9 @@ inspect view
 
 - [x] Third model (`gpt-oss-20b`) for a size comparison
 - [x] All banking injection tasks (i0–i8) on 3 user tasks (gpt-oss-20b)
-- [ ] Same for local models via Ollama (`qwen3.5:4b`, `granite4.1:3b`)
+- [x] Same 27 cases for `muse-glimmer-30b` (NVIDIA); `granite4.1:3b` locally on u3
+- [ ] Why did Muse fall for i2/i3 only in the landlord file (u2)?
+- [ ] Repeat runs (epochs) for tighter intervals
 - [ ] Defence eval: prompt-injection filter in front of the agent (detection rate vs. false blocks)
 - [ ] Own test cases for a custom agent
 
